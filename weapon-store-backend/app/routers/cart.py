@@ -1,8 +1,8 @@
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
@@ -18,9 +18,7 @@ router = APIRouter(prefix="/cart", tags=["Cart"])
 
 async def get_or_create_cart(db: AsyncSession, user_id: int) -> Cart:
     result = await db.execute(
-        select(Cart)
-        .where(Cart.user_id == user_id)
-        .options(selectinload(Cart.items))
+        select(Cart).where(Cart.user_id == user_id).options(selectinload(Cart.items))
     )
     cart = result.scalar_one_or_none()
 
@@ -55,8 +53,7 @@ async def add_to_cart(
 
     result = await db.execute(
         select(CartItem).where(
-            CartItem.cart_id == cart.id,
-            CartItem.product_id == item_data.product_id
+            CartItem.cart_id == cart.id, CartItem.product_id == item_data.product_id
         )
     )
     existing_item = result.scalar_one_or_none()
@@ -65,16 +62,14 @@ async def add_to_cart(
         existing_item.quantity += item_data.quantity
     else:
         new_item = CartItem(
-            cart_id=cart.id,
-            product_id=item_data.product_id,
-            quantity=item_data.quantity
+            cart_id=cart.id, product_id=item_data.product_id, quantity=item_data.quantity
         )
         db.add(new_item)
 
     await db.commit()
 
     return {"message": "Товар добавлен в корзину"}
-    
+
 
 @router.get("", response_model=CartResponse)
 async def get_cart(
@@ -89,12 +84,7 @@ async def get_cart(
     cart = result.scalar_one_or_none()
 
     if not cart:
-        return CartResponse(
-            id=0,
-            user_id=current_user.id,
-            items=[],
-            total_amount=Decimal("0.00")
-        )
+        return CartResponse(id=0, user_id=current_user.id, items=[], total_amount=Decimal("0.00"))
 
     items_response = []
     total_amount = Decimal("0.00")
@@ -110,15 +100,12 @@ async def get_cart(
                 product_name=item.product.name,
                 price=Decimal(item.product.price),
                 quantity=item.quantity,
-                total_price=item_total
+                total_price=item_total,
             )
         )
 
     return CartResponse(
-        id=cart.id,
-        user_id=current_user.id,
-        items=items_response,
-        total_amount=total_amount
+        id=cart.id, user_id=current_user.id, items=items_response, total_amount=total_amount
     )
 
 

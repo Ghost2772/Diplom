@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.ai.ai_service import generate_ai_response
 from app.core.database import get_db
 from app.dependencies.auth import get_current_user
-from app.models.user import User
 from app.models.chat_message import ChatMessage
+from app.models.user import User
 from app.schemas.ai import ChatRequest, ChatResponse
 from app.schemas.chat import ChatMessageResponse
-from app.ai.ai_service import generate_ai_response
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 

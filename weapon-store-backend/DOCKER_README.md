@@ -1,32 +1,13 @@
-# Docker запуск
+# Backend-only Docker Compose
 
-## 1. Подготовка
-Скопируйте пример переменных окружения:
+Основной сценарий запуска всего приложения описан в
+[корневом README](../README.md) и использует `docker-compose.yml` в корне.
 
-```bash
-cp .env.example .env
-```
-
-При необходимости замените значения в `.env`.
-
-## 2. Запуск
+Для запуска только FastAPI и PostgreSQL:
 
 ```bash
 docker compose up --build
 ```
 
-## 3. Проверка
-- API: http://localhost:8000
-- Swagger: http://localhost:8000/docs
-
-## 4. Остановка
-
-```bash
-docker compose down
-```
-
-## 5. Остановка с удалением volume БД
-
-```bash
-docker compose down -v
-```
+Команда выполняется из каталога `weapon-store-backend`. API и Swagger будут
+доступны на <http://localhost:8000> и <http://localhost:8000/docs>.

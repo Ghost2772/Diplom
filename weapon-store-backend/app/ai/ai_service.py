@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 import httpx
@@ -7,22 +8,30 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.ai.guard import is_blocked_message
 from app.core.config import settings
 from app.models.category import Category
-from app.models.product import Product
 from app.models.chat_message import ChatMessage
+from app.models.product import Product
 
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = (
     "Ты ИИ-консультант интернет-магазина регулируемых товаров. "
     "Отвечай только по данным, переданным в контексте. "
     "Если данных недостаточно, честно скажи, что информации в каталоге сейчас нет. "
     "Не придумывай товары, категории, цены, характеристики и наличие. "
-    "Помогай с навигацией по каталогу, оформлением заказа, статусами заказа и общими легальными вопросами о покупке. "
-    "Не давай инструкции по незаконному, опасному, вредоносному использованию, обходу закона, скрытому применению, "
+    "Помогай с навигацией по каталогу, оформлением заказа, статусами заказа "
+    "и общими легальными вопросами о покупке. "
+    "Не давай инструкции по незаконному, опасному, вредоносному использованию, "
+    "обходу закона, скрытому применению, "
     "переделке или модификации товаров."
 )
 
 
 async def get_gigachat_token() -> str:
+    if not settings.GIGACHAT_AUTH_KEY:
+        raise RuntimeError(
+            "GigaChat is not configured. Set GIGACHAT_AUTH_KEY to enable the AI consultant."
+        )
+
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
         "Accept": "application/json",
@@ -34,7 +43,10 @@ async def get_gigachat_token() -> str:
         "scope": settings.GIGACHAT_SCOPE,
     }
 
-    async with httpx.AsyncClient(timeout=30.0, verify=False) as client:
+    async with httpx.AsyncClient(
+        timeout=30.0,
+        verify=settings.GIGACHAT_VERIFY_SSL,
+    ) as client:
         response = await client.post(
             settings.GIGACHAT_AUTH_URL,
             headers=headers,
@@ -49,7 +61,7 @@ async def build_catalog_context(db: AsyncSession) -> str:
     category_result = await db.execute(select(Category))
     categories = category_result.scalars().all()
 
-    product_result = await db.execute(select(Product).where(Product.is_active == True))
+    product_result = await db.execute(select(Product).where(Product.is_active))
     products = product_result.scalars().all()
 
     category_lines = []
@@ -71,13 +83,7 @@ async def build_catalog_context(db: AsyncSession) -> str:
     categories_text = "\n".join(category_lines) if category_lines else "- Категории отсутствуют"
     products_text = "\n".join(product_lines) if product_lines else "- Товары отсутствуют"
 
-    return (
-        "Контекст каталога:\n\n"
-        "Категории:\n"
-        f"{categories_text}\n\n"
-        "Товары:\n"
-        f"{products_text}\n"
-    )
+    return f"Контекст каталога:\n\nКатегории:\n{categories_text}\n\nТовары:\n{products_text}\n"
 
 
 async def get_recent_chat_history(db: AsyncSession, user_id: int, limit: int = 6) -> list[dict]:
@@ -94,19 +100,18 @@ async def get_recent_chat_history(db: AsyncSession, user_id: int, limit: int = 6
 
 
 async def save_chat_message(db: AsyncSession, user_id: int, role: str, content: str):
-    message = ChatMessage(
-        user_id=user_id,
-        role=role,
-        content=content
-    )
+    message = ChatMessage(user_id=user_id, role=role, content=content)
     db.add(message)
     await db.commit()
 
 
-async def call_gigachat(message: str, db: AsyncSession, user_id: int) -> str:
+async def call_gigachat(
+    message: str,
+    db: AsyncSession,
+    history: list[dict],
+) -> str:
     access_token = await get_gigachat_token()
     catalog_context = await build_catalog_context(db)
-    history = await get_recent_chat_history(db, user_id)
 
     combined_system_prompt = f"{SYSTEM_PROMPT}\n\n{catalog_context}"
 
@@ -131,7 +136,10 @@ async def call_gigachat(message: str, db: AsyncSession, user_id: int) -> str:
         "repetition_penalty": 1,
     }
 
-    async with httpx.AsyncClient(timeout=60.0, verify=False) as client:
+    async with httpx.AsyncClient(
+        timeout=60.0,
+        verify=settings.GIGACHAT_VERIFY_SSL,
+    ) as client:
         response = await client.post(
             settings.GIGACHAT_API_URL,
             headers=headers,
@@ -146,18 +154,21 @@ async def generate_ai_response(message: str, db: AsyncSession, user_id: int) -> 
     if is_blocked_message(message):
         blocked_answer = (
             "Извините, я не могу помогать с опасными, незаконными или вредоносными запросами. "
-            "Я могу помочь только с легальными товарами, навигацией по каталогу и оформлением заказа."
+            "Я могу помочь только с легальными товарами, навигацией по каталогу "
+            "и оформлением заказа."
         )
         await save_chat_message(db, user_id, "user", message)
         await save_chat_message(db, user_id, "assistant", blocked_answer)
         return blocked_answer, True
 
     try:
+        history = await get_recent_chat_history(db, user_id)
         await save_chat_message(db, user_id, "user", message)
-        answer = await call_gigachat(message, db, user_id)
+        answer = await call_gigachat(message, db, history)
         await save_chat_message(db, user_id, "assistant", answer)
         return answer, False
-    except Exception as e:
-        error_answer = f"Ошибка AI-сервиса: {str(e)}"
+    except Exception:
+        logger.exception("GigaChat request failed")
+        error_answer = "ИИ-консультант временно недоступен. Попробуйте отправить сообщение позже."
         await save_chat_message(db, user_id, "assistant", error_answer)
         return error_answer, False

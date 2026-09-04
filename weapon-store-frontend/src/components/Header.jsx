@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/authContext";
 
 export default function Header() {
   const { isAuthenticated, logout } = useAuth();
@@ -8,7 +8,7 @@ export default function Header() {
     <header className="header">
       <div className="container nav">
         <Link to="/" className="logo">
-          Weapon Store
+          Muller’s Firearms
         </Link>
 
         <nav className="nav-links">

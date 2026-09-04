@@ -1,34 +1,37 @@
+name: mullers-firearms-backend
+
 services:
   db:
-    image: postgres:16
-    container_name: weapon_store_db
-    restart: always
+    image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_DB: weapon_store
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: weapon_store
+      POSTGRES_PASSWORD: weapon_store
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d weapon_store"]
+      test: ["CMD-SHELL", "pg_isready -U weapon_store -d weapon_store"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   backend:
     build: .
-    container_name: weapon_store_backend
-    restart: always
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "8000:8000"
-    env_file:
-      - .env
-
-
+    environment:
+      DATABASE_URL: postgresql+asyncpg://weapon_store:weapon_store@db:5432/weapon_store
+      SECRET_KEY: local-development-key-change-before-production
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+      GIGACHAT_AUTH_KEY: ${GIGACHAT_AUTH_KEY:-}
+      GIGACHAT_VERIFY_SSL: ${GIGACHAT_VERIFY_SSL:-true}
+      SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
 volumes:
   postgres_data:
