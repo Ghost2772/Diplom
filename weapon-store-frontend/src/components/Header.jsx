@@ -4,10 +4,10 @@ import { useAuth } from "../context/authContext";
 export default function Header() {
   const { isAuthenticated, logout } = useAuth();
   const { pathname } = useLocation();
-  const isHomePage = pathname === "/";
+  const usesOverlayHeader = ["/", "/login", "/register"].includes(pathname);
 
   return (
-    <header className={`header${isHomePage ? " header--home" : ""}`}>
+    <header className={`header${usesOverlayHeader ? " header--home" : ""}`}>
       <div className="container nav">
         <Link to="/" className="logo">
           Muller's Firearms
