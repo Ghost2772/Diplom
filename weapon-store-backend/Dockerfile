@@ -13,6 +13,10 @@ RUN addgroup --system app && adduser --system --ingroup app app
 
 COPY --chown=app:app . .
 
+# Windows checkouts can convert shell scripts to CRLF. Normalize the
+# entrypoint inside the Linux image so /bin/sh never receives a trailing \r.
+RUN sed -i 's/\r$//' ./entrypoint.sh && chmod 755 ./entrypoint.sh
+
 USER app
 
 EXPOSE 8000
