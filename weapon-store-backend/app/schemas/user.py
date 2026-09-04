@@ -14,7 +14,9 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    email: EmailStr
+    # Existing demo accounts can use an internal `.local` address. Registration
+    # still validates new addresses through UserCreate.email.
+    email: str
     full_name: str | None = None
     phone: str | None = None
     is_active: bool
