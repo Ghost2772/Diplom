@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -110,7 +110,11 @@ async def get_all_orders(
     db: AsyncSession = Depends(get_db),
     current_admin: User = Depends(get_current_admin_user),
 ):
-    result = await db.execute(select(Order).options(selectinload(Order.items)))
+    result = await db.execute(
+        select(Order)
+        .options(selectinload(Order.items))
+        .order_by(Order.created_at.desc(), Order.id.desc())
+    )
     orders = result.scalars().all()
 
     return orders
@@ -147,3 +151,23 @@ async def update_order_status(
     updated_order = result.scalar_one()
 
     return updated_order
+
+
+@router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_order(
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_admin: User = Depends(get_current_admin_user),
+):
+    result = await db.execute(
+        select(Order).where(Order.id == order_id).options(selectinload(Order.items))
+    )
+    order = result.scalar_one_or_none()
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Заказ не найден")
+
+    await db.delete(order)
+    await db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

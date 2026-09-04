@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
 export default function Header() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const { pathname } = useLocation();
   const usesOverlayHeader = ["/", "/login", "/register"].includes(pathname);
 
@@ -19,6 +19,7 @@ export default function Header() {
           {isAuthenticated && <Link to="/cart">Корзина</Link>}
           {isAuthenticated && <Link to="/orders">Заказы</Link>}
           {isAuthenticated && <Link to="/chat">AI-чат</Link>}
+          {user?.is_admin && <Link to="/admin">Админ</Link>}
           {!isAuthenticated && <Link to="/login">Вход</Link>}
           {!isAuthenticated && <Link to="/register">Регистрация</Link>}
           {isAuthenticated && (

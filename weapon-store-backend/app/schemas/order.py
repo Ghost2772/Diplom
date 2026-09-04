@@ -2,14 +2,14 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
-ALLOWED_ORDER_STATUSES = {
+ALLOWED_ORDER_STATUSES = (
     "created",
     "confirmed",
     "processing",
     "shipped",
     "completed",
     "cancelled",
-}
+)
 
 
 class OrderItemResponse(BaseModel):
