@@ -1,11 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
 export default function Header() {
   const { isAuthenticated, logout } = useAuth();
+  const { pathname } = useLocation();
+  const isHomePage = pathname === "/";
 
   return (
-    <header className="header">
+    <header className={`header${isHomePage ? " header--home" : ""}`}>
       <div className="container nav">
         <Link to="/" className="logo">
           Muller’s Firearms
