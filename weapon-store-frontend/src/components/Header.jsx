@@ -15,6 +15,7 @@ export default function Header() {
 
         <nav className="nav-links">
           <Link to="/catalog">Каталог</Link>
+          {isAuthenticated && <Link to="/profile">Профиль</Link>}
           {isAuthenticated && <Link to="/cart">Корзина</Link>}
           {isAuthenticated && <Link to="/orders">Заказы</Link>}
           {isAuthenticated && <Link to="/chat">AI-чат</Link>}

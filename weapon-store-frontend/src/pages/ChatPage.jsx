@@ -1,16 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getChatHistory, sendMessageToAI } from "../api/chatApi";
+
+const SUGGESTED_QUESTIONS = [
+  "Как выбрать оптический прицел?",
+  "Сравни модели для спортивной стрельбы",
+  "Что учесть при выборе карабина?",
+];
+
+const messageTimeFormatter = new Intl.DateTimeFormat("ru-RU", {
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+const getMessageText = (message) =>
+  message.message || message.content || message.answer || "";
+
+const getMessageRole = (message) => {
+  if (message.role) return message.role;
+  if (message.is_user === true) return "user";
+  if (message.is_user === false) return "assistant";
+  return "assistant";
+};
 
 export default function ChatPage() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     getChatHistory()
       .then((data) => {
-        console.log("CHAT HISTORY:", data);
+        if (!isMounted) return;
 
         if (Array.isArray(data)) {
           setMessages(data);
@@ -20,48 +44,59 @@ export default function ChatPage() {
           setMessages([]);
         }
       })
-      .catch((error) => {
-        console.error("CHAT HISTORY ERROR:", error);
-        setMessages([]);
+      .catch(() => {
+        if (isMounted) setMessages([]);
       })
       .finally(() => {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const handleSend = async () => {
-    if (!message.trim()) return;
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, sending]);
 
-    const userMessage = {
-      role: "user",
-      message: message,
-    };
+  const handleSend = async (suggestedMessage) => {
+    const currentMessage =
+      typeof suggestedMessage === "string" ? suggestedMessage.trim() : message.trim();
 
-    setMessages((prev) => [...prev, userMessage]);
-    const currentMessage = message;
+    if (!currentMessage || sending) return;
+
+    setMessages((previous) => [
+      ...previous,
+      {
+        role: "user",
+        message: currentMessage,
+        created_at: new Date().toISOString(),
+      },
+    ]);
     setMessage("");
     setSending(true);
 
     try {
       const data = await sendMessageToAI(currentMessage);
-      console.log("AI RESPONSE:", data);
-
-      const aiMessage = {
-        role: "assistant",
-        message: data.answer,
-        blocked: data.blocked,
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      console.error("AI CHAT ERROR:", error);
-
-      setMessages((prev) => [
-        ...prev,
+      setMessages((previous) => [
+        ...previous,
         {
           role: "assistant",
-          message: "Ошибка при обращении к AI-консультанту.",
+          message: data.answer,
+          blocked: data.blocked,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+    } catch {
+      setMessages((previous) => [
+        ...previous,
+        {
+          role: "assistant",
+          message: "Не удалось получить ответ. Проверьте подключение и попробуйте ещё раз.",
           blocked: false,
+          created_at: new Date().toISOString(),
+          failed: true,
         },
       ]);
     } finally {
@@ -69,133 +104,141 @@ export default function ChatPage() {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
       handleSend();
     }
   };
 
-  const getMessageText = (msg) => {
-    return (
-      msg.message ||
-      msg.content ||
-      msg.answer ||
-      ""
-    );
-  };
-
-  const getMessageRole = (msg) => {
-    if (msg.role) return msg.role;
-    if (msg.is_user === true) return "user";
-    if (msg.is_user === false) return "assistant";
-    return "assistant";
-  };
-
-  if (loading) {
-    return (
-      <div className="container page">
-        <h2>AI-консультант</h2>
-        <p>Загрузка истории чата...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="container page">
-      <h2>AI-консультант</h2>
+    <main className="workspace-page chat-page">
+      <div className="container workspace-layout workspace-layout--chat">
+        <header className="workspace-heading workspace-heading--chat">
+          <p className="workspace-heading__eyebrow">Интеллектуальный помощник</p>
+          <h1>AI-консультант</h1>
+          <p>Поможет сравнить характеристики и сориентироваться в каталоге.</p>
+        </header>
 
-      <div
-        style={{
-          border: "1px solid #334155",
-          borderRadius: "12px",
-          padding: "16px",
-          background: "#111827",
-          minHeight: "350px",
-          marginBottom: "16px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-        }}
-      >
-        {messages.length === 0 ? (
-          <p style={{ color: "#94a3b8" }}>
-            История пуста. Задай первый вопрос.
-          </p>
+        {loading ? (
+          <div className="workspace-status">Загружаем историю диалога…</div>
         ) : (
-          messages.map((msg, index) => {
-            const role = getMessageRole(msg);
-            const text = getMessageText(msg);
-
-            return (
-              <div
-                key={index}
-                style={{
-                  alignSelf: role === "user" ? "flex-end" : "flex-start",
-                  maxWidth: "75%",
-                  padding: "12px 14px",
-                  borderRadius: "12px",
-                  background: role === "user" ? "#2563eb" : "#1e293b",
-                  color: "#fff",
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "12px",
-                    opacity: 0.8,
-                    marginBottom: "6px",
-                  }}
-                >
-                  {role === "user" ? "Вы" : "AI-консультант"}
+          <section className="glass-panel chat-window" aria-label="Диалог с AI-консультантом">
+            <header className="chat-window__header">
+              <div className="chat-agent">
+                <span className="chat-agent__avatar" aria-hidden="true">AI</span>
+                <div>
+                  <strong>Muller AI</strong>
+                  <span className="chat-agent__status">
+                    <span aria-hidden="true" />
+                    Готов к диалогу
+                  </span>
                 </div>
-
-                <div>{text}</div>
-
-                {msg.blocked && (
-                  <div style={{ marginTop: "8px", color: "#fca5a5", fontSize: "12px" }}>
-                    Ответ помечен как ограниченный
-                  </div>
-                )}
               </div>
-            );
-          })
+              <span className="chat-window__caption">Справочная консультация</span>
+            </header>
+
+            <div className="chat-messages" aria-live="polite">
+              {messages.length === 0 ? (
+                <div className="chat-welcome">
+                  <span className="chat-welcome__mark" aria-hidden="true">AI</span>
+                  <p className="workspace-heading__eyebrow">Начните диалог</p>
+                  <h2>Чем могу помочь?</h2>
+                  <p>Задайте свой вопрос или выберите один из готовых вариантов.</p>
+                  <div className="chat-suggestions">
+                    {SUGGESTED_QUESTIONS.map((question) => (
+                      <button type="button" key={question} onClick={() => handleSend(question)}>
+                        {question} <span aria-hidden="true">↗</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                messages.map((chatMessage, index) => {
+                  const role = getMessageRole(chatMessage);
+                  const text = getMessageText(chatMessage);
+                  const date = chatMessage.created_at
+                    ? new Date(chatMessage.created_at)
+                    : null;
+
+                  return (
+                    <article
+                      className={`chat-message chat-message--${role}${
+                        chatMessage.failed ? " chat-message--failed" : ""
+                      }`}
+                      key={chatMessage.id ?? `${role}-${index}`}
+                    >
+                      <span className="chat-message__avatar" aria-hidden="true">
+                        {role === "user" ? "Вы" : "AI"}
+                      </span>
+                      <div className="chat-message__column">
+                        <div className="chat-message__meta">
+                          <strong>{role === "user" ? "Вы" : "Muller AI"}</strong>
+                          {date && !Number.isNaN(date.getTime()) && (
+                            <time dateTime={chatMessage.created_at}>
+                              {messageTimeFormatter.format(date)}
+                            </time>
+                          )}
+                        </div>
+                        <div className="chat-message__bubble">
+                          <p>{text}</p>
+                          {chatMessage.blocked && (
+                            <span className="chat-message__restriction">
+                              Ответ ограничен правилами безопасности
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })
+              )}
+
+              {sending && (
+                <article className="chat-message chat-message--assistant">
+                  <span className="chat-message__avatar" aria-hidden="true">AI</span>
+                  <div className="chat-message__column">
+                    <div className="chat-message__meta"><strong>Muller AI</strong></div>
+                    <div className="chat-message__bubble chat-message__bubble--typing">
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                  </div>
+                </article>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <footer className="chat-composer">
+              <div className="chat-composer__field">
+                <textarea
+                  rows="2"
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Напишите вопрос о товарах или характеристиках…"
+                  maxLength={1500}
+                  aria-label="Сообщение AI-консультанту"
+                />
+                <span>{message.length}/1500</span>
+              </div>
+              <button
+                type="button"
+                className="chat-composer__send"
+                onClick={() => handleSend()}
+                disabled={sending || !message.trim()}
+                aria-label="Отправить сообщение"
+              >
+                <span aria-hidden="true">↑</span>
+              </button>
+              <p>
+                Enter — отправить, Shift + Enter — новая строка. Ответы носят справочный характер.
+              </p>
+            </footer>
+          </section>
         )}
       </div>
-
-      <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-        <textarea
-          rows="4"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Например: Посоветуй полуавтоматическое ружьё для охоты"
-          style={{
-            flex: 1,
-            padding: "12px",
-            borderRadius: "10px",
-            border: "1px solid #334155",
-            background: "#0f172a",
-            color: "#fff",
-            resize: "vertical",
-          }}
-        />
-
-        <button
-          onClick={handleSend}
-          disabled={sending || !message.trim()}
-          style={{
-            border: "none",
-            background: sending ? "#475569" : "#2563eb",
-            color: "#fff",
-            padding: "12px 18px",
-            borderRadius: "10px",
-            minWidth: "120px",
-          }}
-        >
-          {sending ? "Отправка..." : "Отправить"}
-        </button>
-      </div>
-    </div>
+    </main>
   );
 }
