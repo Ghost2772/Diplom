@@ -32,6 +32,8 @@ services:
       DEBUG: ${DEBUG:-false}
       SQL_ECHO: ${SQL_ECHO:-false}
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-weapon_store}:${POSTGRES_PASSWORD:-weapon_store}@db:5432/${POSTGRES_DB:-weapon_store}
+      DB_WAIT_MAX_ATTEMPTS: ${DB_WAIT_MAX_ATTEMPTS:-30}
+      DB_WAIT_DELAY_SECONDS: ${DB_WAIT_DELAY_SECONDS:-2}
       SECRET_KEY: ${SECRET_KEY:-local-development-key-change-before-production}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:5173}
@@ -49,10 +51,11 @@ services:
         - CMD
         - python
         - -c
-        - import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 12
+      start_period: 20s
 
   frontend:
     build:
