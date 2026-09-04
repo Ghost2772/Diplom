@@ -1,74 +1,87 @@
 import { useEffect, useState } from "react";
-import { getProducts } from "../api/productsApi";
-import { addToCart } from "../api/cartApi";
+import { Link } from "react-router-dom";
+import { getCategories } from "../api/productsApi";
+
+const SMOOTHBORE_SLUG = "smoothbore-shotguns";
 
 export default function CatalogPage() {
-  const [products, setProducts] = useState([]);
+  const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    getProducts()
-      .then((data) => {
-        console.log("PRODUCTS:", data);
-        setProducts(Array.isArray(data) ? data : []);
+    let isMounted = true;
+
+    getCategories()
+      .then((categories) => {
+        if (!isMounted) return;
+
+        const smoothboreCategory = Array.isArray(categories)
+          ? categories.find((item) => item.slug === SMOOTHBORE_SLUG)
+          : null;
+
+        setCategory(smoothboreCategory || null);
+        if (!smoothboreCategory) {
+          setError("Категория пока недоступна.");
+        }
       })
-      .catch((error) => {
-        console.error("PRODUCTS ERROR:", error);
-        alert("Ошибка загрузки товаров");
+      .catch(() => {
+        if (isMounted) {
+          setError("Не удалось загрузить каталог. Попробуйте обновить страницу.");
+        }
       })
       .finally(() => {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const handleAddToCart = async (productId) => {
-    try {
-      await addToCart(productId, 1);
-      alert("Товар добавлен в корзину");
-    } catch (error) {
-      console.error("ADD TO CART ERROR:", error);
-      alert("Не удалось добавить товар в корзину");
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="container page">
-        <h2>Каталог</h2>
-        <p>Загрузка товаров...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="container page">
-      <h2>Каталог</h2>
+    <main className="catalog-page">
+      <div className="container catalog-layout">
+        <header className="catalog-heading">
+          <p className="catalog-heading__eyebrow">Muller's Firearms</p>
+          <h1>Каталог</h1>
+          <p>Выберите категорию, чтобы перейти к доступным моделям.</p>
+        </header>
 
-      {products.length === 0 ? (
-        <p>Товары не найдены.</p>
-      ) : (
-        products.map((p) => (
-          <div
-            key={p.id}
-            style={{
-              border: "1px solid #334155",
-              padding: "16px",
-              marginBottom: "16px",
-              borderRadius: "10px",
-              background: "#111827",
-            }}
-          >
-            <h3>{p.name}</h3>
-            <p>{p.description}</p>
-            <p>Цена: {p.price}</p>
-            <p>Остаток: {p.stock}</p>
+        {loading && <div className="catalog-status">Загружаем категории…</div>}
+        {!loading && error && <div className="catalog-status catalog-status--error">{error}</div>}
 
-            <button onClick={() => handleAddToCart(p.id)}>
-              В корзину
-            </button>
-          </div>
-        ))
-      )}
-    </div>
+        {!loading && category && (
+          <section className="category-grid" aria-label="Категории товаров">
+            <Link
+              to={`/catalog/${category.slug}`}
+              className="category-card"
+              aria-label="Открыть категорию Гладкоствольное оружие"
+            >
+              <div className="category-card__content">
+                <span className="category-card__number">Категория 01</span>
+                <h2>Гладкоствольное оружие</h2>
+                <p>
+                  Помповые, самозарядные и классические модели для охоты и
+                  спортивной стрельбы.
+                </p>
+                <span className="category-card__link">
+                  Смотреть модели <span aria-hidden="true">↗</span>
+                </span>
+              </div>
+
+              <div className="category-card__media" aria-hidden="true">
+                <img
+                  src="/images/categories/smoothbore.webp"
+                  alt=""
+                  width="1461"
+                  height="980"
+                />
+              </div>
+            </Link>
+          </section>
+        )}
+      </div>
+    </main>
   );
 }

@@ -10,7 +10,7 @@ export default function Header() {
     <header className={`header${isHomePage ? " header--home" : ""}`}>
       <div className="container nav">
         <Link to="/" className="logo">
-          Muller’s Firearms
+          Muller's Firearms
         </Link>
 
         <nav className="nav-links">

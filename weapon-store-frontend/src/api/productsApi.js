@@ -1,14 +1,11 @@
-// import api from "./axios";
-
-// export const getProducts = async () => {
-//   const response = await api.get("/products");
-//   return response.data;
-// };
-
 import api from "./axios";
 
-export const getProducts = async () => {
-  const response = await api.get("/products");
-  console.log("GET /products response:", response.data);
+export const getCategories = async () => {
+  const response = await api.get("/categories");
+  return response.data;
+};
+
+export const getProducts = async (params = {}) => {
+  const response = await api.get("/products", { params });
   return response.data;
 };
