@@ -2,10 +2,55 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCategories } from "../api/productsApi";
 
-const SMOOTHBORE_SLUG = "smoothbore-shotguns";
+const CATEGORY_CARDS = [
+  {
+    slug: "smoothbore-shotguns",
+    number: "01",
+    title: "Гладкоствольное оружие",
+    description:
+      "Помповые, самозарядные и классические модели для охоты и спортивной стрельбы.",
+    image: "/images/categories/smoothbore.webp",
+    imageWidth: 1461,
+    imageHeight: 980,
+    variant: "smoothbore",
+  },
+  {
+    slug: "rifled-firearms",
+    number: "02",
+    title: "Нарезное оружие",
+    description:
+      "Карабины и винтовки с высокой точностью для охотничьих и спортивных задач.",
+    image: "/images/categories/rifled.webp",
+    imageWidth: 852,
+    imageHeight: 657,
+    variant: "rifled",
+  },
+  {
+    slug: "ammunition-and-gear",
+    number: "03",
+    title: "Амуниция",
+    description:
+      "Боеприпасы, экипировка и снаряжение, подобранные под разные сценарии использования.",
+    image: "/images/categories/ammunition.webp",
+    imageWidth: 1320,
+    imageHeight: 813,
+    variant: "ammunition",
+  },
+  {
+    slug: "optics",
+    number: "04",
+    title: "Оптические прицелы",
+    description:
+      "Оптика для точного наведения и уверенного наблюдения на разных дистанциях.",
+    image: "/images/categories/optics.webp",
+    imageWidth: 379,
+    imageHeight: 362,
+    variant: "optics",
+  },
+];
 
 export default function CatalogPage() {
-  const [category, setCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -16,13 +61,11 @@ export default function CatalogPage() {
       .then((categories) => {
         if (!isMounted) return;
 
-        const smoothboreCategory = Array.isArray(categories)
-          ? categories.find((item) => item.slug === SMOOTHBORE_SLUG)
-          : null;
+        const loadedCategories = Array.isArray(categories) ? categories : [];
+        setCategories(loadedCategories);
 
-        setCategory(smoothboreCategory || null);
-        if (!smoothboreCategory) {
-          setError("Категория пока недоступна.");
+        if (loadedCategories.length === 0) {
+          setError("Категории пока недоступны.");
         }
       })
       .catch(() => {
@@ -39,6 +82,9 @@ export default function CatalogPage() {
     };
   }, []);
 
+  const availableSlugs = new Set(categories.map((category) => category.slug));
+  const availableCards = CATEGORY_CARDS.filter((card) => availableSlugs.has(card.slug));
+
   return (
     <main className="catalog-page">
       <div className="container catalog-layout">
@@ -51,34 +97,35 @@ export default function CatalogPage() {
         {loading && <div className="catalog-status">Загружаем категории…</div>}
         {!loading && error && <div className="catalog-status catalog-status--error">{error}</div>}
 
-        {!loading && category && (
+        {!loading && availableCards.length > 0 && (
           <section className="category-grid" aria-label="Категории товаров">
-            <Link
-              to={`/catalog/${category.slug}`}
-              className="category-card"
-              aria-label="Открыть категорию Гладкоствольное оружие"
-            >
-              <div className="category-card__content">
-                <span className="category-card__number">Категория 01</span>
-                <h2>Гладкоствольное оружие</h2>
-                <p>
-                  Помповые, самозарядные и классические модели для охоты и
-                  спортивной стрельбы.
-                </p>
-                <span className="category-card__link">
-                  Смотреть модели <span aria-hidden="true">↗</span>
-                </span>
-              </div>
+            {availableCards.map((card, index) => (
+              <Link
+                to={`/catalog/${card.slug}`}
+                className={`category-card category-card--${card.variant}`}
+                aria-label={`Открыть категорию ${card.title}`}
+                key={card.slug}
+                style={{ "--card-delay": `${170 + index * 110}ms` }}
+              >
+                <div className="category-card__content">
+                  <span className="category-card__number">Категория {card.number}</span>
+                  <h2>{card.title}</h2>
+                  <p>{card.description}</p>
+                  <span className="category-card__link">
+                    Смотреть модели <span aria-hidden="true">↗</span>
+                  </span>
+                </div>
 
-              <div className="category-card__media" aria-hidden="true">
-                <img
-                  src="/images/categories/smoothbore.webp"
-                  alt=""
-                  width="1461"
-                  height="980"
-                />
-              </div>
-            </Link>
+                <div className="category-card__media" aria-hidden="true">
+                  <img
+                    src={card.image}
+                    alt=""
+                    width={card.imageWidth}
+                    height={card.imageHeight}
+                  />
+                </div>
+              </Link>
+            ))}
           </section>
         )}
       </div>

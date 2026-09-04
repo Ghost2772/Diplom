@@ -11,6 +11,9 @@ const currencyFormatter = new Intl.NumberFormat("ru-RU", {
 
 const CATEGORY_TITLES = {
   "smoothbore-shotguns": "Гладкоствольное оружие",
+  "rifled-firearms": "Нарезное оружие",
+  "ammunition-and-gear": "Амуниция",
+  optics: "Оптические прицелы",
 };
 
 export default function CategoryProductsPage() {
