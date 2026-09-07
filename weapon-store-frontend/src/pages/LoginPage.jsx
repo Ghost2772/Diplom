@@ -49,7 +49,7 @@ export default function LoginPage() {
           <div className="auth-card__intro">
             <p className="auth-eyebrow">Личный кабинет</p>
             <h1 id="login-title">С возвращением</h1>
-            <p>Войдите, чтобы продолжить работу с каталогом, заказами и AI-консультантом.</p>
+            <p>Войдите, чтобы продолжить работу с каталогом, заказами и AI-консультантом</p>
           </div>
 
           {registrationCompleted && (
@@ -123,10 +123,10 @@ export default function LoginPage() {
 
         <aside className="auth-showcase" aria-label="Возможности личного кабинета">
           <p className="auth-showcase__brand">Muller's Firearms</p>
-          <h2>Всё необходимое для точного выбора.</h2>
+          <h2>Всё необходимое для точного выбора</h2>
           <p>
             Сохраняйте товары, отслеживайте заказы и получайте персональные рекомендации
-            в одном пространстве.
+            в одном пространстве
           </p>
           <div className="auth-showcase__features">
             <span>01</span><strong>Единый профиль</strong>

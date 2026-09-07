@@ -69,7 +69,7 @@ export default function RegisterPage() {
           <div className="auth-card__intro">
             <p className="auth-eyebrow">Новый аккаунт</p>
             <h1 id="register-title">Регистрация</h1>
-            <p>Создайте профиль для доступа к корзине, заказам и AI-консультанту.</p>
+            <p>Создайте профиль для доступа к корзине, заказам и AI-консультанту</p>
           </div>
 
           {error && (
@@ -88,7 +88,7 @@ export default function RegisterPage() {
                   name="full_name"
                   value={form.full_name}
                   onChange={updateField("full_name")}
-                  placeholder="Александр Абрамов"
+                  placeholder="Ваше имя"
                   autoComplete="name"
                   minLength="2"
                   maxLength="120"
@@ -183,10 +183,10 @@ export default function RegisterPage() {
 
         <aside className="auth-showcase" aria-label="Преимущества регистрации">
           <p className="auth-showcase__brand">Muller's Firearms</p>
-          <h2>Персональный сервис с первого визита.</h2>
+          <h2>Индивидуальный подход к каждой задаче</h2>
           <p>
-            Соберите подборку, оформите демонстрационный заказ и продолжите диалог с
-            консультантом в любое время.
+            Находите подходящее снаряжение и получайте помощь AI-консультанта на каждом
+            этапе выбора
           </p>
           <div className="auth-showcase__features">
             <span>01</span><strong>Быстрый доступ</strong>

@@ -514,6 +514,16 @@ button {
   line-height: 0.98;
 }
 
+.auth-page--login .auth-card__intro {
+  container-type: inline-size;
+}
+
+.auth-page--login .auth-card__intro h1 {
+  font-size: clamp(1.75rem, 11.8cqi, 3.6rem);
+  line-height: 1.08;
+  white-space: nowrap;
+}
+
 .auth-card__intro > p:last-child {
   max-width: 530px;
   margin: 1rem 0 0;
