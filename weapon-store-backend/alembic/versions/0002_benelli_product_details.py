@@ -9,6 +9,7 @@ Only shared M3 specifications are included; configuration-specific dimensions,
 weight and capacity cannot be established from the uploaded photograph.
 """
 
+import json
 from collections.abc import Sequence
 
 import sqlalchemy as sa
@@ -48,16 +49,21 @@ def upgrade() -> None:
                 "масса, прицельные приспособления и ёмкость магазина зависят от исполнения."
             ),
             image_url="/images/products/benelli-m3-super-90.png",
-            attributes={
-                "Калибр": "12",
-                "Патронник": "76 мм (Magnum)",
-                "Система перезаряжания": "Инерционная полуавтоматика / помповая",
-                "Производитель": "Benelli Armi",
-                "Страна": "Италия",
-                "Ствольная коробка": "Алюминиевый сплав Ergal",
-                "Приклад и цевьё": "Технополимер",
-                "Покрытие ствольной коробки": "Чёрное матовое анодирование",
-            },
+            attributes=op.inline_literal(
+                json.dumps(
+                    {
+                        "Калибр": "12",
+                        "Патронник": "76 мм (Magnum)",
+                        "Система перезаряжания": "Инерционная полуавтоматика / помповая",
+                        "Производитель": "Benelli Armi",
+                        "Страна": "Италия",
+                        "Ствольная коробка": "Алюминиевый сплав Ergal",
+                        "Приклад и цевьё": "Технополимер",
+                        "Покрытие ствольной коробки": "Чёрное матовое анодирование",
+                    },
+                    ensure_ascii=False,
+                )
+            ),
         )
     )
 

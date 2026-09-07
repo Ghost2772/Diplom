@@ -61,8 +61,7 @@ PRODUCTS = (
         # https://benelli.it/en/arma/m3-black
         # https://benelli.it/en/arma/m3-tactical
         "short_description": (
-            "Гладкоствольное ружьё 12-го калибра с инерционной и помповой "
-            "системами перезаряжания"
+            "Гладкоствольное ружьё 12-го калибра с инерционной и помповой системами перезаряжания"
         ),
         "description": (
             "Benelli M3 Super 90 — гладкоствольное ружьё итальянского производителя "
@@ -164,9 +163,7 @@ PRODUCTS = (
         "category_slug": "ammunition-and-gear",
         # This is the 4.2 g / 30-round variant shown on the user's packaging.
         # https://www.barnaulpatron.ru/ru/catalog/patrony-dlya-nareznogo-oruzhiya/5-45x39/
-        "short_description": (
-            "Оболочечные патроны с пулей 4,2 г и стальной лакированной гильзой"
-        ),
+        "short_description": ("Оболочечные патроны с пулей 4,2 г и стальной лакированной гильзой"),
         "description": (
             "Патроны Барнаульского патронного завода калибра 5,45×39 с оболочечной "
             "пулей FMJ массой 4,2 г. Пуля имеет коническую хвостовую часть.\n\n"

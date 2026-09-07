@@ -14,6 +14,7 @@ Barnaul: the uploaded 4.2 g / 30-round pack and the manufacturer's catalogue:
 https://www.barnaulpatron.ru/ru/catalog/patrony-dlya-nareznogo-oruzhiya/5-45x39/
 """
 
+import json
 from collections.abc import Sequence
 from decimal import Decimal
 
@@ -64,8 +65,8 @@ NEW_PRODUCTS = (
         "brand": "Bornaghi",
         "category_slug": "ammunition-and-gear",
         "short_description": "Дробовые патроны Magnum с массой снаряда 50 г в упаковке по 10 штук",
-        "description": "Bornaghi Magnum 12/76 — дробовые патроны итальянского бренда Bornaghi. Масса "
-        "дробового снаряда составляет 50 г, длина гильзы — 76 мм.\n"
+        "description": "Bornaghi Magnum 12/76 — дробовые патроны итальянского бренда Bornaghi. "
+        "Масса дробового снаряда составляет 50 г, длина гильзы — 76 мм.\n"
         "\n"
         "В коробке 10 патронов. Номер дроби зависит от варианта патрона и указывается "
         "на его упаковке.",
@@ -93,8 +94,8 @@ NEW_PRODUCTS = (
         "brand": "БПЗ / Barnaul",
         "category_slug": "ammunition-and-gear",
         "short_description": "Оболочечные патроны с пулей 4,2 г и стальной лакированной гильзой",
-        "description": "Патроны Барнаульского патронного завода калибра 5,45×39 с оболочечной пулей "
-        "FMJ массой 4,2 г. Пуля имеет коническую хвостовую часть.\n"
+        "description": "Патроны Барнаульского патронного завода калибра 5,45×39 с оболочечной "
+        "пулей FMJ массой 4,2 г. Пуля имеет коническую хвостовую часть.\n"
         "\n"
         "В представленном варианте используются стальная лакированная гильза и "
         "неоржавляющий капсюль. Упаковка содержит 30 патронов.",
@@ -124,7 +125,6 @@ LEGACY_PRODUCTS = (
 
 
 def upgrade() -> None:
-    connection = op.get_bind()
     products = sa.table(
         "products",
         sa.column("id", sa.Integer()),
@@ -152,37 +152,48 @@ def upgrade() -> None:
 
     # Insert first so even SQLite cannot recycle the identities being retired.
     # On an empty database the regular seed runs after the migrations.
+    # INSERT ... SELECT also supports SQL generation without a live database.
     for data in NEW_PRODUCTS:
-        category_id = connection.scalar(
-            sa.select(categories.c.id).where(categories.c.slug == data["category_slug"])
-        )
-        if category_id is None:
-            continue
-        existing_id = connection.scalar(
+        fields = {key: value for key, value in data.items() if key != "category_slug"}
+        fields["is_active"] = True
+        values = [
+            op.inline_literal(json.dumps(value, ensure_ascii=False))
+            if key == "attributes"
+            else sa.literal(value, type_=products.c[key].type)
+            for key, value in fields.items()
+        ]
+        already_present = sa.exists(
             sa.select(products.c.id).where(
                 sa.or_(products.c.sku == data["sku"], products.c.slug == data["slug"])
             )
         )
-        if existing_id is None:
-            fields = {key: value for key, value in data.items() if key != "category_slug"}
-            connection.execute(
-                products.insert().values(**fields, category_id=category_id, is_active=True)
+        op.execute(
+            products.insert().from_select(
+                [*fields, "category_id"],
+                sa.select(*values, categories.c.id).where(
+                    categories.c.slug == data["category_slug"],
+                    ~already_present,
+                ),
             )
-
-    for sku, slug, replacement_sku in LEGACY_PRODUCTS:
-        replacement_id = connection.scalar(
-            sa.select(products.c.id).where(products.c.sku == replacement_sku)
         )
-        if replacement_id is None:
-            continue
-        old_ids = sa.select(products.c.id).where(products.c.sku == sku, products.c.slug == slug)
-        connection.execute(
+
+    replacements = products.alias("replacement")
+    for sku, slug, replacement_sku in LEGACY_PRODUCTS:
+        replacement_exists = sa.exists(
+            sa.select(replacements.c.id).where(replacements.c.sku == replacement_sku)
+        )
+        old_ids = sa.select(products.c.id).where(
+            products.c.sku == sku,
+            products.c.slug == slug,
+            replacement_exists,
+        )
+        op.execute(
             order_items.update()
             .where(order_items.c.product_id.in_(old_ids))
             .values(product_id=None)
         )
-        connection.execute(cart_items.delete().where(cart_items.c.product_id.in_(old_ids)))
-        connection.execute(products.delete().where(products.c.id.in_(old_ids)))
+        op.execute(cart_items.delete().where(cart_items.c.product_id.in_(old_ids)))
+        op.execute(products.delete().where(products.c.id.in_(old_ids)))
 
 
 def downgrade() -> None:

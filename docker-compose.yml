@@ -40,10 +40,15 @@ services:
       GIGACHAT_AUTH_KEY: ${GIGACHAT_AUTH_KEY:-}
       GIGACHAT_SCOPE: ${GIGACHAT_SCOPE:-GIGACHAT_API_PERS}
       GIGACHAT_MODEL: ${GIGACHAT_MODEL:-GigaChat-2}
+      GIGACHAT_API_URL: ${GIGACHAT_API_URL:-https://api.giga.chat/v1/chat/completions}
       GIGACHAT_VERIFY_SSL: ${GIGACHAT_VERIFY_SSL:-true}
+      GIGACHAT_CA_BUNDLE: ${GIGACHAT_CA_BUNDLE:-}
+      PRODUCT_UPLOAD_DIR: /app/uploads/products
       SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
       DEMO_ADMIN_EMAIL: ${DEMO_ADMIN_EMAIL:-admin@mullers.local}
       DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:-ChangeMe123!}
+    volumes:
+      - product_uploads:/app/uploads
     ports:
       - "8000:8000"
     healthcheck:
@@ -74,3 +79,4 @@ services:
 
 volumes:
   postgres_data:
+  product_uploads:

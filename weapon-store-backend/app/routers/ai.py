@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, Response
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.ai_service import generate_ai_response
@@ -35,3 +35,14 @@ async def get_chat_history(
     )
     messages = result.scalars().all()
     return messages
+
+
+@router.delete("/history", status_code=204)
+async def clear_chat_history(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await db.scalar(select(User.id).where(User.id == current_user.id).with_for_update())
+    await db.execute(delete(ChatMessage).where(ChatMessage.user_id == current_user.id))
+    await db.commit()
+    return Response(status_code=204)

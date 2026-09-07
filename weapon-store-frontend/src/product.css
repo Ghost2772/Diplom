@@ -130,7 +130,8 @@
   place-items: center;
 }
 
-.product-image img {
+.product-image img,
+.product-image__framed {
   display: block;
   width: 100%;
   height: 100%;

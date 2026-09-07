@@ -3,6 +3,14 @@ const fieldLabels = {
   password: "Пароль",
   full_name: "Имя",
   phone: "Телефон",
+  name: "Название",
+  sku: "Артикул",
+  price: "Цена",
+  old_price: "Старая цена",
+  stock: "Остаток",
+  category_id: "Категория",
+  image_url: "Изображение",
+  attributes: "Характеристики",
 };
 
 export function getApiErrorMessage(error, fallback) {

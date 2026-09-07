@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { getChatHistory, sendMessageToAI } from "../api/chatApi";
+import { clearChatHistory, getChatHistory, sendMessageToAI } from "../api/chatApi";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { getApiErrorMessage } from "../utils/apiErrors";
 
 const SUGGESTED_QUESTIONS = [
   "Как выбрать оптический прицел?",
@@ -27,6 +29,12 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [clearError, setClearError] = useState("");
+  const [historyError, setHistoryError] = useState("");
+  const [notice, setNotice] = useState("");
+  const busyRef = useRef(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -45,7 +53,7 @@ export default function ChatPage() {
         }
       })
       .catch(() => {
-        if (isMounted) setMessages([]);
+        if (isMounted) setHistoryError("Не удалось загрузить историю. Обновите страницу, чтобы повторить попытку");
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -64,7 +72,9 @@ export default function ChatPage() {
     const currentMessage =
       typeof suggestedMessage === "string" ? suggestedMessage.trim() : message.trim();
 
-    if (!currentMessage || sending) return;
+    if (!currentMessage || busyRef.current || loading || confirmClear || historyError) return;
+    busyRef.current = true;
+    setNotice("");
 
     setMessages((previous) => [
       ...previous,
@@ -100,7 +110,27 @@ export default function ChatPage() {
         },
       ]);
     } finally {
+      busyRef.current = false;
       setSending(false);
+    }
+  };
+
+  const handleClear = async () => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setClearing(true);
+    setClearError("");
+    try {
+      await clearChatHistory();
+      setMessages([]);
+      setMessage("");
+      setConfirmClear(false);
+      setNotice("История очищена — можно начать новый диалог");
+    } catch (error) {
+      setClearError(getApiErrorMessage(error, "Не удалось очистить историю. Попробуйте ещё раз"));
+    } finally {
+      busyRef.current = false;
+      setClearing(false);
     }
   };
 
@@ -117,8 +147,11 @@ export default function ChatPage() {
         <header className="workspace-heading workspace-heading--chat">
           <p className="workspace-heading__eyebrow">Интеллектуальный помощник</p>
           <h1>AI-консультант</h1>
-          <p>Поможет сравнить характеристики и сориентироваться в каталоге.</p>
+          <p>Поможет сравнить характеристики и сориентироваться в каталоге</p>
         </header>
+
+        {historyError && <div className="workspace-notice workspace-notice--error" role="alert">{historyError}</div>}
+        {notice && <div className="workspace-notice workspace-notice--success" role="status">{notice}</div>}
 
         {loading ? (
           <div className="workspace-status">Загружаем историю диалога…</div>
@@ -135,7 +168,14 @@ export default function ChatPage() {
                   </span>
                 </div>
               </div>
-              <span className="chat-window__caption">Справочная консультация</span>
+              <div className="chat-window__actions">
+                <span className="chat-window__caption">Справочная консультация</span>
+                <button type="button" className="admin-delete-button chat-clear-button"
+                  disabled={!messages.length || sending || clearing || Boolean(historyError)}
+                  onClick={() => { setClearError(""); setConfirmClear(true); }}>
+                  Очистить чат
+                </button>
+              </div>
             </header>
 
             <div className="chat-messages" aria-live="polite">
@@ -147,7 +187,8 @@ export default function ChatPage() {
                   <p>Задайте свой вопрос или выберите один из готовых вариантов.</p>
                   <div className="chat-suggestions">
                     {SUGGESTED_QUESTIONS.map((question) => (
-                      <button type="button" key={question} onClick={() => handleSend(question)}>
+                      <button type="button" key={question} disabled={sending || clearing || Boolean(historyError)}
+                        onClick={() => handleSend(question)}>
                         {question} <span aria-hidden="true">↗</span>
                       </button>
                     ))}
@@ -220,6 +261,7 @@ export default function ChatPage() {
                   placeholder="Напишите вопрос о товарах или характеристиках…"
                   maxLength={1500}
                   aria-label="Сообщение AI-консультанту"
+                  disabled={clearing || Boolean(historyError)}
                 />
                 <span>{message.length}/1500</span>
               </div>
@@ -227,7 +269,7 @@ export default function ChatPage() {
                 type="button"
                 className="chat-composer__send"
                 onClick={() => handleSend()}
-                disabled={sending || !message.trim()}
+                disabled={sending || clearing || Boolean(historyError) || !message.trim()}
                 aria-label="Отправить сообщение"
               >
                 <span aria-hidden="true">↑</span>
@@ -239,6 +281,12 @@ export default function ChatPage() {
           </section>
         )}
       </div>
+      {confirmClear && (
+        <ConfirmDialog title="Очистить чат?" confirmLabel="Очистить" busy={clearing}
+          error={clearError} onConfirm={handleClear} onCancel={() => setConfirmClear(false)}>
+          Все сообщения этого диалога будут удалены. Следующий разговор начнётся с чистой истории
+        </ConfirmDialog>
+      )}
     </main>
   );
 }

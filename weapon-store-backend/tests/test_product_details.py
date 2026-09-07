@@ -47,8 +47,7 @@ def test_seeded_product_details_are_available_without_login(api_client, monkeypa
 def test_migration_updates_existing_benelli_and_preserves_other_data(api_client) -> None:
     client, session_factory = api_client
     migration_path = (
-        Path(__file__).resolve().parents[1]
-        / "alembic/versions/0002_benelli_product_details.py"
+        Path(__file__).resolve().parents[1] / "alembic/versions/0002_benelli_product_details.py"
     )
     spec = importlib.util.spec_from_file_location("benelli_details_migration", migration_path)
     migration = importlib.util.module_from_spec(spec)
@@ -73,16 +72,18 @@ def test_migration_updates_existing_benelli_and_preserves_other_data(api_client)
                 stock=9,
             )
             session.add(item)
-            session.add(Product(
-                name="Другая модель",
-                slug="another-model",
-                sku="CUSTOM-1",
-                category_id=category.id,
-                description="Собственное описание",
-                attributes={"Материал": "Дерево"},
-                price=Decimal("15000.00"),
-                stock=2,
-            ))
+            session.add(
+                Product(
+                    name="Другая модель",
+                    slug="another-model",
+                    sku="CUSTOM-1",
+                    category_id=category.id,
+                    description="Собственное описание",
+                    attributes={"Материал": "Дерево"},
+                    price=Decimal("15000.00"),
+                    stock=2,
+                )
+            )
             await session.flush()
             return item.id
 

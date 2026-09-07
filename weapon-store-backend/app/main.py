@@ -7,6 +7,7 @@ from app.routers.auth import router as auth_router
 from app.routers.cart import router as cart_router
 from app.routers.catalog import router as catalog_router
 from app.routers.orders import router as orders_router
+from app.routers.uploads import router as uploads_router
 from app.routers.users import router as users_router
 
 app = FastAPI(
@@ -26,6 +27,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(catalog_router)
+app.include_router(uploads_router)
 app.include_router(cart_router)
 app.include_router(orders_router)
 app.include_router(ai_router)

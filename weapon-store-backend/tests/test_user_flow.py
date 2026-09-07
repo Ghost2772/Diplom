@@ -161,9 +161,7 @@ def test_admin_can_view_users_and_manage_orders(api_client) -> None:
         "/auth/login",
         data={"username": admin_email, "password": admin_password},
     )
-    admin_headers = {
-        "Authorization": f"Bearer {admin_login.json()['access_token']}"
-    }
+    admin_headers = {"Authorization": f"Bearer {admin_login.json()['access_token']}"}
 
     forbidden_users = client.get("/users", headers=user_headers)
     assert forbidden_users.status_code == 403

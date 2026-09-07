@@ -1,4 +1,5 @@
 import logging
+import ssl
 import uuid
 
 import httpx
@@ -10,8 +11,20 @@ from app.core.config import settings
 from app.models.category import Category
 from app.models.chat_message import ChatMessage
 from app.models.product import Product
+from app.models.user import User
 
 logger = logging.getLogger(__name__)
+
+
+def gigachat_tls_verify() -> bool | ssl.SSLContext:
+    if not settings.GIGACHAT_VERIFY_SSL:
+        return False
+    if not settings.GIGACHAT_CA_BUNDLE:
+        return True
+    context = ssl.create_default_context()
+    context.load_verify_locations(cafile=settings.GIGACHAT_CA_BUNDLE)
+    return context
+
 
 SYSTEM_PROMPT = (
     "Ты ИИ-консультант интернет-магазина регулируемых товаров. "
@@ -45,7 +58,7 @@ async def get_gigachat_token() -> str:
 
     async with httpx.AsyncClient(
         timeout=30.0,
-        verify=settings.GIGACHAT_VERIFY_SSL,
+        verify=gigachat_tls_verify(),
     ) as client:
         response = await client.post(
             settings.GIGACHAT_AUTH_URL,
@@ -75,9 +88,10 @@ async def build_catalog_context(db: AsyncSession) -> str:
     for product in products:
         category_name = category_map.get(product.category_id, "Без категории")
         description = product.description if product.description else "без описания"
+        attributes = "; ".join(f"{key}: {value}" for key, value in product.attributes.items())
         product_lines.append(
             f"- {product.name} | цена: {product.price} | остаток: {product.stock} | "
-            f"категория: {category_name} | описание: {description}"
+            f"категория: {category_name} | описание: {description} | характеристики: {attributes}"
         )
 
     categories_text = "\n".join(category_lines) if category_lines else "- Категории отсутствуют"
@@ -97,12 +111,6 @@ async def get_recent_chat_history(db: AsyncSession, user_id: int, limit: int = 6
     messages = list(reversed(messages))
 
     return [{"role": msg.role, "content": msg.content} for msg in messages]
-
-
-async def save_chat_message(db: AsyncSession, user_id: int, role: str, content: str):
-    message = ChatMessage(user_id=user_id, role=role, content=content)
-    db.add(message)
-    await db.commit()
 
 
 async def call_gigachat(
@@ -138,7 +146,7 @@ async def call_gigachat(
 
     async with httpx.AsyncClient(
         timeout=60.0,
-        verify=settings.GIGACHAT_VERIFY_SSL,
+        verify=gigachat_tls_verify(),
     ) as client:
         response = await client.post(
             settings.GIGACHAT_API_URL,
@@ -151,24 +159,37 @@ async def call_gigachat(
 
 
 async def generate_ai_response(message: str, db: AsyncSession, user_id: int) -> tuple[str, bool]:
-    if is_blocked_message(message):
-        blocked_answer = (
+    # Only short database operations hold this lock; the external API call does
+    # not. Clearing in another tab cannot resurrect an old pending answer.
+    await db.scalar(select(User.id).where(User.id == user_id).with_for_update())
+    history = await get_recent_chat_history(db, user_id)
+    request_message = ChatMessage(user_id=user_id, role="user", content=message)
+    db.add(request_message)
+    await db.commit()
+    blocked = is_blocked_message(message)
+    if blocked:
+        answer = (
             "Извините, я не могу помогать с опасными, незаконными или вредоносными запросами. "
             "Я могу помочь только с легальными товарами, навигацией по каталогу "
             "и оформлением заказа."
         )
-        await save_chat_message(db, user_id, "user", message)
-        await save_chat_message(db, user_id, "assistant", blocked_answer)
-        return blocked_answer, True
+    else:
+        try:
+            answer = await call_gigachat(message, db, history)
+        except Exception:
+            logger.exception("GigaChat request failed")
+            answer = "ИИ-консультант временно недоступен. Попробуйте отправить сообщение позже."
 
-    try:
-        history = await get_recent_chat_history(db, user_id)
-        await save_chat_message(db, user_id, "user", message)
-        answer = await call_gigachat(message, db, history)
-        await save_chat_message(db, user_id, "assistant", answer)
-        return answer, False
-    except Exception:
-        logger.exception("GigaChat request failed")
-        error_answer = "ИИ-консультант временно недоступен. Попробуйте отправить сообщение позже."
-        await save_chat_message(db, user_id, "assistant", error_answer)
-        return error_answer, False
+    await db.scalar(select(User.id).where(User.id == user_id).with_for_update())
+    request_exists = await db.scalar(
+        select(ChatMessage.id).where(
+            ChatMessage.id == request_message.id,
+            ChatMessage.user_id == user_id,
+        )
+    )
+    if request_exists is None:
+        await db.rollback()
+        return "История этого диалога была очищена. Отправьте новый вопрос", False
+    db.add(ChatMessage(user_id=user_id, role="assistant", content=answer))
+    await db.commit()
+    return answer, blocked

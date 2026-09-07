@@ -19,8 +19,11 @@ class Settings(BaseSettings):
     GIGACHAT_SCOPE: str = "GIGACHAT_API_PERS"
     GIGACHAT_MODEL: str = "GigaChat-2"
     GIGACHAT_AUTH_URL: str = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
-    GIGACHAT_API_URL: str = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
+    GIGACHAT_API_URL: str = "https://api.giga.chat/v1/chat/completions"
     GIGACHAT_VERIFY_SSL: bool = True
+    GIGACHAT_CA_BUNDLE: str | None = None
+
+    PRODUCT_UPLOAD_DIR: str = "uploads/products"
 
     SEED_DEMO_DATA: bool = False
     DEMO_ADMIN_EMAIL: str = "admin@mullers.local"

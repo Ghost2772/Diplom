@@ -6,6 +6,8 @@ import {
   updateAdminOrderStatus,
 } from "../api/adminApi";
 import { getApiErrorMessage } from "../utils/apiErrors";
+import { getCategories, getProducts } from "../api/productsApi";
+import AdminProductsPanel from "../components/AdminProductsPanel";
 
 const ORDER_STATUSES = [
   ["created", "Создан"],
@@ -39,6 +41,9 @@ const formatDate = (date) => {
 export default function AdminPage() {
   const [users, setUsers] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [editingProduct, setEditingProduct] = useState(false);
   const [activeSection, setActiveSection] = useState("orders");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -55,12 +60,16 @@ export default function AdminPage() {
     setNotice("");
 
     try {
-      const [usersData, ordersData] = await Promise.all([
+      const [usersData, ordersData, productsData, categoriesData] = await Promise.all([
         getAdminUsers(),
         getAdminOrders(),
+        getProducts(),
+        getCategories(),
       ]);
       setUsers(Array.isArray(usersData) ? usersData : []);
       setOrders(Array.isArray(ordersData) ? ordersData : []);
+      setProducts(Array.isArray(productsData) ? productsData : []);
+      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
     } catch (requestError) {
       setLoadError(
         getApiErrorMessage(
@@ -134,7 +143,7 @@ export default function AdminPage() {
         <header className="workspace-heading admin-heading">
           <p className="workspace-heading__eyebrow">Системное управление</p>
           <h1>Админ-панель</h1>
-          <p>Пользователи, заказы и управление этапами обработки в одном интерфейсе.</p>
+          <p>Товары, пользователи и заказы в одном интерфейсе</p>
         </header>
 
         {loading && <div className="workspace-status">Загружаем данные…</div>}
@@ -168,6 +177,7 @@ export default function AdminPage() {
                 <button
                   type="button"
                   role="tab"
+                  disabled={editingProduct}
                   aria-selected={activeSection === "orders"}
                   className={activeSection === "orders" ? "is-active" : ""}
                   onClick={() => setActiveSection("orders")}
@@ -177,14 +187,20 @@ export default function AdminPage() {
                 <button
                   type="button"
                   role="tab"
+                  disabled={editingProduct}
                   aria-selected={activeSection === "users"}
                   className={activeSection === "users" ? "is-active" : ""}
                   onClick={() => setActiveSection("users")}
                 >
                   Пользователи <span>{users.length}</span>
                 </button>
+                <button type="button" role="tab" aria-selected={activeSection === "products"}
+                  className={activeSection === "products" ? "is-active" : ""}
+                  onClick={() => setActiveSection("products")}>
+                  Товары <span>{products.length}</span>
+                </button>
               </div>
-              <button className="admin-refresh" type="button" onClick={loadAdminData}>
+              <button className="admin-refresh" type="button" disabled={editingProduct} onClick={loadAdminData}>
                 Обновить данные
               </button>
             </div>
@@ -275,6 +291,9 @@ export default function AdminPage() {
                 )}
               </section>
             )}
+
+            {activeSection === "products" && <AdminProductsPanel products={products} categories={categories}
+              onProductsChange={setProducts} onEditorChange={setEditingProduct} />}
 
             {activeSection === "users" && (
               <section className="admin-section" role="tabpanel">

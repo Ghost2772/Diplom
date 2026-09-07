@@ -16,6 +16,19 @@ export default function ProductImage({ src, name, priority = false }) {
     );
   }
 
+  // Match Benelli's 987 × 551 frame without scaling the transparent square
+  // around the Saiga. Both silhouettes then occupy the same visible width.
+  if (src.split(/[?#]/)[0] === "/images/products/saiga-545x39.webp") {
+    return (
+      <div className="product-image">
+        <svg className="product-image__framed" viewBox="0 0 987 551" role="img" aria-label={name}>
+          <image href={src} x="-30.31" y="-248.29" width="1038.59" height="1038.59"
+            onError={() => setFailedSource(src)} />
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <div className="product-image">
       <img

@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 RUN addgroup --system app && adduser --system --ingroup app app
+RUN mkdir -p /app/uploads/products && chown -R app:app /app/uploads
 
 COPY --chown=app:app . .
 

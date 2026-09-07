@@ -3,4 +3,4 @@
 Thumbs.db
 *.log
 .deps/
-
+weapon-store-backend/uploads/

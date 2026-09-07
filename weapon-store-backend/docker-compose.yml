@@ -31,7 +31,14 @@ services:
       SECRET_KEY: local-development-key-change-before-production
       CORS_ORIGINS: http://localhost:3000,http://localhost:5173
       GIGACHAT_AUTH_KEY: ${GIGACHAT_AUTH_KEY:-}
+      GIGACHAT_SCOPE: ${GIGACHAT_SCOPE:-GIGACHAT_API_PERS}
+      GIGACHAT_MODEL: ${GIGACHAT_MODEL:-GigaChat-2}
       GIGACHAT_VERIFY_SSL: ${GIGACHAT_VERIFY_SSL:-true}
+      GIGACHAT_CA_BUNDLE: ${GIGACHAT_CA_BUNDLE:-}
+      PRODUCT_UPLOAD_DIR: /app/uploads/products
       SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
+    volumes:
+      - product_uploads:/app/uploads
 volumes:
   postgres_data:
+  product_uploads:
