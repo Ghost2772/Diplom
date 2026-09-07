@@ -73,6 +73,7 @@ export default function ProductPage() {
   const categoryUrl = category ? `/catalog/${category.slug}` : "/catalog";
   const inStock = product?.is_active && product.stock > 0;
   const attributes = Object.entries(product?.attributes || {});
+  const isPackaged = Boolean(product?.attributes?.["Количество в упаковке"]);
 
   return (
     <main className="catalog-page product-page">
@@ -125,11 +126,13 @@ export default function ProductPage() {
                 {product.short_description && <p className="product-summary__intro">{product.short_description}</p>}
                 <span className={`product-stock${inStock ? " is-available" : ""}`}>
                   <span aria-hidden="true" />
-                  {inStock ? `В наличии · ${product.stock} шт` : "Нет в наличии"}
+                  {inStock ? `В наличии · ${product.stock} ${isPackaged ? "уп" : "шт"}` : "Нет в наличии"}
                 </span>
 
                 <div className="product-purchase">
-                  <span className="product-purchase__label">Стоимость</span>
+                  <span className="product-purchase__label">
+                    {isPackaged ? "Стоимость упаковки" : "Стоимость"}
+                  </span>
                   <div className="product-price">
                     <strong>{currencyFormatter.format(Number(product.price))}</strong>
                     {Number(product.old_price) > Number(product.price) && (
@@ -153,7 +156,7 @@ export default function ProductPage() {
             <div className="product-information">
               <section className="glass-panel product-description" aria-labelledby="product-description-title">
                 <p className="catalog-heading__eyebrow">Подробнее</p>
-                <h2 id="product-description-title">О модели</h2>
+                <h2 id="product-description-title">Описание</h2>
                 <p className="product-description__text">
                   {product.description || product.short_description || "Описание пока не добавлено"}
                 </p>

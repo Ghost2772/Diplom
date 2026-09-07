@@ -50,6 +50,13 @@
   font-weight: 600;
 }
 
+.product-card__price-unit {
+  color: rgba(244, 242, 236, 0.48);
+  font-size: 0.72rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
 .product-layout {
   width: min(1240px, 92%);
   padding: clamp(2rem, 5vw, 4rem) 0 clamp(4rem, 8vw, 7rem);

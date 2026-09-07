@@ -131,11 +131,16 @@ export default function CategoryProductsPage() {
                       ))}
                     </ul>
                   )}
-                  <span className="product-card__more" aria-hidden="true">Подробнее о модели ↗</span>
+                  <span className="product-card__more" aria-hidden="true">Подробнее о товаре ↗</span>
                 </div>
 
                 <div className="product-card__footer">
-                  <strong>{currencyFormatter.format(Number(product.price))}</strong>
+                  <strong>
+                    {currencyFormatter.format(Number(product.price))}
+                    {product.attributes?.["Количество в упаковке"] && (
+                      <small className="product-card__price-unit"> / уп</small>
+                    )}
+                  </strong>
                   <button
                     type="button"
                     disabled={product.stock <= 0 || addingProductId !== null}

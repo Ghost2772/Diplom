@@ -90,35 +90,103 @@ PRODUCTS = (
         "is_regulated": True,
     },
     {
-        "name": "Tikka T3x Lite",
-        "slug": "tikka-t3x-lite",
-        "sku": "MF-RIF-0001",
-        "brand": "Tikka",
+        "name": "Сайга 5,45×39",
+        "slug": "saiga-545x39",
+        "sku": "MF-RIF-0002",
+        "brand": "Калашников",
         "category_slug": "rifled-firearms",
-        "short_description": "Демонстрационная карточка охотничьего карабина.",
+        # Configuration 030 is selected explicitly; do not mix its dimensions with 033.
+        # https://kalashnikov.market/product/110000900301/sajga-5-45-isp-30-5-45x39-415-mm
+        "short_description": "Самозарядный карабин калибра 5,45×39 в исполнении 030",
         "description": (
-            "Учебная позиция каталога с характеристиками, пригодными для "
-            "сравнения и работы ИИ-консультанта."
+            "Сайга 5,45×39 — российский самозарядный карабин семейства «Сайга». "
+            "В каталоге представлено исполнение 030 со стволом длиной 415 мм.\n\n"
+            "Модель оснащена съёмным коробчатым магазином, прикладом и цевьём "
+            "из ударопрочного полимера. Масса этого исполнения составляет 3,6 кг."
         ),
-        "price": Decimal("219990.00"),
-        "old_price": Decimal("229990.00"),
+        "image_url": "/images/products/saiga-545x39.webp",
+        # Prices and stock in the seed are display-only demo values, not market quotes.
+        "price": Decimal("79990.00"),
+        "old_price": None,
         "stock": 2,
-        "attributes": {"Назначение": "Охота", "Материал ложи": "Синтетика"},
+        "attributes": {
+            "Калибр": "5,45×39",
+            "Исполнение": "030",
+            "Длина ствола": "415 мм",
+            "Тип": "Самозарядный нарезной карабин",
+            "Масса": "3,6 кг",
+            "Магазин": "Съёмный коробчатый",
+            "Приклад и цевьё": "Ударопрочный полимер",
+            "Производитель": "Калашников",
+            "Страна": "Россия",
+        },
         "is_featured": True,
         "is_regulated": True,
     },
     {
-        "name": "Учебный комплект патронов 12/70",
-        "slug": "training-ammunition-12-70",
-        "sku": "MF-AMM-0001",
-        "brand": "Muller's Demo",
+        "name": "Bornaghi Magnum 12/76",
+        "slug": "bornaghi-magnum-12-76",
+        "sku": "MF-AMM-0002",
+        "brand": "Bornaghi",
         "category_slug": "ammunition-and-gear",
-        "short_description": "Демонстрационная позиция раздела амуниции.",
-        "description": "Позиция предназначена только для демонстрации интерфейса магазина.",
+        # Calibre, shot charge and pack size follow the user's photographed packaging.
+        "short_description": (
+            "Дробовые патроны Magnum с массой снаряда 50 г в упаковке по 10 штук"
+        ),
+        "description": (
+            "Bornaghi Magnum 12/76 — дробовые патроны итальянского бренда Bornaghi. "
+            "Масса дробового снаряда составляет 50 г, длина гильзы — 76 мм.\n\n"
+            "В коробке 10 патронов. Номер дроби зависит от варианта патрона и "
+            "указывается на его упаковке."
+        ),
+        "image_url": "/images/products/bornaghi-magnum-12-76.png",
         "price": Decimal("2990.00"),
         "old_price": None,
         "stock": 20,
-        "attributes": {"Калибр": "12/70", "Количество": "25 шт."},
+        "attributes": {
+            "Калибр": "12/76",
+            "Масса дробового снаряда": "50 г",
+            "Количество в упаковке": "10 шт",
+            "Тип": "Дробовой патрон Magnum",
+            "Длина гильзы": "76 мм",
+            "Гильза": "Пластиковая с металлическим основанием",
+            "Бренд": "Bornaghi",
+            "Страна": "Италия",
+        },
+        "is_featured": False,
+        "is_regulated": True,
+    },
+    {
+        "name": "БПЗ 5,45×39 FMJ",
+        "slug": "barnaul-545x39-fmj",
+        "sku": "MF-AMM-0003",
+        "brand": "БПЗ / Barnaul",
+        "category_slug": "ammunition-and-gear",
+        # This is the 4.2 g / 30-round variant shown on the user's packaging.
+        # https://www.barnaulpatron.ru/ru/catalog/patrony-dlya-nareznogo-oruzhiya/5-45x39/
+        "short_description": (
+            "Оболочечные патроны с пулей 4,2 г и стальной лакированной гильзой"
+        ),
+        "description": (
+            "Патроны Барнаульского патронного завода калибра 5,45×39 с оболочечной "
+            "пулей FMJ массой 4,2 г. Пуля имеет коническую хвостовую часть.\n\n"
+            "В представленном варианте используются стальная лакированная гильза "
+            "и неоржавляющий капсюль. Упаковка содержит 30 патронов."
+        ),
+        "image_url": "/images/products/barnaul-545x39-fmj.webp",
+        "price": Decimal("1490.00"),
+        "old_price": None,
+        "stock": 20,
+        "attributes": {
+            "Калибр": "5,45×39",
+            "Масса пули": "4,2 г",
+            "Количество в упаковке": "30 шт",
+            "Тип пули": "FMJ, оболочечная с конусом",
+            "Гильза": "Стальная лакированная",
+            "Капсюль": "Неоржавляющий",
+            "Производитель": "АО «Барнаульский патронный завод»",
+            "Страна": "Россия",
+        },
         "is_featured": False,
         "is_regulated": True,
     },
