@@ -112,6 +112,8 @@ async def get_all_orders(
 ):
     result = await db.execute(
         select(Order)
+        .join(User)
+        .where(User.demo_expires_at.is_(None))
         .options(selectinload(Order.items))
         .order_by(Order.created_at.desc(), Order.id.desc())
     )

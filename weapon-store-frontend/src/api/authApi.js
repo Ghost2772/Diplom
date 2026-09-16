@@ -1,5 +1,15 @@
 import api from "./axios";
 
+export const getDemoConfig = async () => {
+  const response = await api.get("/auth/demo");
+  return response.data;
+};
+
+export const loginDemo = async () => {
+  const response = await api.post("/auth/demo");
+  return response.data;
+};
+
 export const registerUser = async (data) => {
   const response = await api.post("/auth/register", data);
   return response.data;

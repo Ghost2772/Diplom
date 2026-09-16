@@ -62,6 +62,23 @@ export default function ProfilePage() {
           <div className="workspace-status workspace-status--error">{error}</div>
         )}
 
+        {!loading && user?.is_demo && (
+          <section className="glass-panel demo-session" aria-label="Демонстрационный режим">
+            <span className="demo-session__badge">Демо</span>
+            <div>
+              <h2>Знакомьтесь с проектом в своём темпе</h2>
+              <p>
+                Изучите примеры заказов, измените корзину или откройте диалог с AI-консультантом
+              </p>
+              <small>
+                Данные вымышлены · Сессия до {new Date(user.demo_expires_at).toLocaleTimeString("ru-RU", {
+                  hour: "2-digit", minute: "2-digit",
+                })} · После завершения можно начать заново
+              </small>
+            </div>
+          </section>
+        )}
+
         {!loading && user && (
           <div className="profile-grid">
             <section className="glass-panel profile-card">
@@ -70,7 +87,7 @@ export default function ProfilePage() {
                   {getInitials(user)}
                 </div>
                 <div>
-                  <p className="profile-card__label">Владелец аккаунта</p>
+                  <p className="profile-card__label">{user.is_demo ? "Демонстрационный профиль" : "Владелец аккаунта"}</p>
                   <h2>{user.full_name || "Пользователь Muller's Firearms"}</h2>
                   <span className="profile-status">
                     <span aria-hidden="true" />
@@ -94,7 +111,7 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <dt>Уровень доступа</dt>
-                  <dd>{user.is_admin ? "Администратор" : "Клиент"}</dd>
+                  <dd>{user.is_demo ? "Демо-посетитель" : user.is_admin ? "Администратор" : "Клиент"}</dd>
                 </div>
               </dl>
             </section>

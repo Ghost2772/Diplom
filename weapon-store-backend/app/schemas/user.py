@@ -21,6 +21,8 @@ class UserResponse(BaseModel):
     phone: str | None = None
     is_active: bool
     is_admin: bool
+    is_demo: bool = False
+    demo_expires_at: datetime | None = None
     created_at: datetime
 
 

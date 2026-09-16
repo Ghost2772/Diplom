@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -15,6 +15,11 @@ class User(TimestampMixin, Base):
     phone = Column(String(32), nullable=True)
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
+    demo_expires_at = Column(DateTime(timezone=True), nullable=True, index=True)
+
+    @property
+    def is_demo(self) -> bool:
+        return self.demo_expires_at is not None
 
     cart = relationship(
         "Cart",

@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -37,6 +39,14 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
 
+    if user.is_demo:
+        # SQLite returns naive timestamps in tests; PostgreSQL preserves the timezone.
+        expires_at = user.demo_expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=UTC)
+        if not settings.DEMO_LOGIN_ENABLED or expires_at <= datetime.now(UTC):
+            raise credentials_exception
+
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -49,7 +59,7 @@ async def get_current_user(
 async def get_current_admin_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
-    if not current_user.is_admin:
+    if current_user.is_demo or not current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав доступа"
         )

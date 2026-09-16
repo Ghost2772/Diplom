@@ -20,5 +20,9 @@ async def get_all_users(
     db: AsyncSession = Depends(get_db),
     current_admin: User = Depends(get_current_admin_user),
 ):
-    result = await db.execute(select(User).order_by(User.created_at.desc(), User.id.desc()))
+    result = await db.execute(
+        select(User)
+        .where(User.demo_expires_at.is_(None))
+        .order_by(User.created_at.desc(), User.id.desc())
+    )
     return result.scalars().all()

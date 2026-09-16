@@ -1,4 +1,4 @@
-from pydantic import model_validator
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     GIGACHAT_CA_BUNDLE: str | None = None
 
     PRODUCT_UPLOAD_DIR: str = "uploads/products"
+
+    DEMO_LOGIN_ENABLED: bool = False
+    DEMO_SESSION_MINUTES: int = Field(default=60, ge=5, le=1440)
+    DEMO_MAX_SESSIONS: int = Field(default=100, ge=1, le=1000)
 
     SEED_DEMO_DATA: bool = False
     DEMO_ADMIN_EMAIL: str = "admin@mullers.local"

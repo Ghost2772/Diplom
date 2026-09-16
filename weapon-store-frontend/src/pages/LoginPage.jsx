@@ -3,14 +3,16 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { loginUser } from "../api/authApi";
 import { useAuth } from "../context/authContext";
 import { getApiErrorMessage } from "../utils/apiErrors";
+import DemoLogin from "../components/DemoLogin";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [demoPending, setDemoPending] = useState(false);
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const { login, sessionNotice } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -19,6 +21,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (submitting || demoPending) return;
     setError("");
     setSubmitting(true);
 
@@ -58,6 +61,12 @@ export default function LoginPage() {
               Регистрация завершена. Теперь можно войти.
             </div>
           )}
+
+          {sessionNotice && (
+            <div className="auth-notice" role="status">{sessionNotice}</div>
+          )}
+
+          <DemoLogin disabled={submitting} onPendingChange={setDemoPending} />
 
           {error && (
             <div className="auth-notice auth-notice--error" role="alert">
@@ -110,7 +119,7 @@ export default function LoginPage() {
               </span>
             </div>
 
-            <button className="auth-submit" type="submit" disabled={submitting}>
+            <button className="auth-submit" type="submit" disabled={submitting || demoPending}>
               <span>{submitting ? "Выполняется вход..." : "Войти"}</span>
               {!submitting && <span className="auth-submit__arrow" aria-hidden="true">↗</span>}
             </button>

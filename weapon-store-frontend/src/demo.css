@@ -1,0 +1,140 @@
+.demo-entry {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.15rem;
+  border: 1px solid rgba(201, 172, 116, 0.3);
+  border-radius: 20px;
+  background: linear-gradient(120deg, rgba(201, 172, 116, 0.11), rgba(255, 255, 255, 0.025));
+  font-family: "Manrope", "Segoe UI", sans-serif;
+}
+
+.auth-card .demo-entry {
+  margin-bottom: 1.6rem;
+}
+
+.home-hero__copy .demo-entry {
+  max-width: 540px;
+  margin-top: 1.7rem;
+}
+
+.demo-entry p {
+  margin: 0;
+}
+
+.demo-entry .demo-entry__eyebrow {
+  margin-bottom: 0.45rem;
+  color: #d8bd8b;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.demo-entry__description {
+  color: #f4f2ec;
+  font-size: 0.83rem;
+  line-height: 1.5;
+}
+
+.demo-entry__button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 48px;
+  padding: 0.8rem 1.1rem;
+  border: 1px solid rgba(216, 189, 139, 0.5);
+  border-radius: 999px;
+  background: rgba(201, 172, 116, 0.14);
+  color: #f8e7c5;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: left;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.demo-entry__button:hover:not(:disabled) {
+  border-color: #d8bd8b;
+  background: rgba(201, 172, 116, 0.25);
+}
+
+.demo-entry__button:focus-visible {
+  outline: 2px solid #d8bd8b;
+  outline-offset: 4px;
+}
+
+.demo-entry__button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.demo-entry__hint {
+  color: #b4b1a8;
+  font-size: 0.67rem;
+  line-height: 1.6;
+}
+
+.demo-entry__error {
+  color: #f2b3a8;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.demo-nav-badge,
+.demo-session__badge {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgba(201, 172, 116, 0.35);
+  border-radius: 999px;
+  color: #d8bd8b;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.demo-nav-badge {
+  margin-left: 0.45rem;
+  vertical-align: middle;
+}
+
+.demo-session {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: clamp(1.1rem, 3vw, 1.8rem);
+  border-radius: 24px;
+}
+
+.demo-session h2 {
+  margin: 0 0 0.65rem;
+  color: #f4f2ec;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  font-weight: 600;
+}
+
+.demo-session p {
+  margin: 0 0 0.6rem;
+  color: #cecbc2;
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.demo-session small {
+  color: #aca99f;
+  font-size: 0.7rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .demo-session {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-entry__button {
+    transition: none;
+  }
+}

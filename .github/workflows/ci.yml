@@ -42,7 +42,7 @@ jobs:
       - run: ruff format --check app tests alembic
       - run: alembic upgrade head
       - run: SEED_DEMO_DATA=true python -m app.seed
-      - run: pytest
+      - run: python -m pytest
       - run: alembic upgrade head --sql > /tmp/mullers-firearms-schema.sql
       - run: alembic downgrade base
       - run: alembic upgrade head

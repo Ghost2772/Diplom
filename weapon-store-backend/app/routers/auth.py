@@ -1,14 +1,38 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.schemas.user import Token, UserCreate, UserResponse
+from app.services.demo import create_demo_user
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+
+
+@router.get("/demo")
+async def demo_config(response: Response):
+    response.headers["Cache-Control"] = "no-store"
+    return {
+        "enabled": settings.DEMO_LOGIN_ENABLED,
+        "session_minutes": settings.DEMO_SESSION_MINUTES,
+    }
+
+
+@router.post("/demo", response_model=Token)
+async def demo_login(response: Response, db: AsyncSession = Depends(get_db)):
+    if not settings.DEMO_LOGIN_ENABLED:
+        raise HTTPException(status_code=404, detail="Демонстрационный вход отключён")
+
+    user = await create_demo_user(db)
+    response.headers["Cache-Control"] = "no-store"
+    return {
+        "access_token": create_access_token({"sub": user.email}, expires_at=user.demo_expires_at),
+        "token_type": "bearer",
+    }
 
 
 @router.post("/register", response_model=UserResponse)
@@ -43,7 +67,7 @@ async def login(
     result = await db.execute(select(User).where(User.email == form_data.username))
     user = result.scalar_one_or_none()
 
-    if not user:
+    if not user or user.is_demo:
         raise HTTPException(status_code=401, detail="Неверный email или пароль")
 
     if not verify_password(form_data.password, user.hashed_password):

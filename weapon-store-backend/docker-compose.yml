@@ -36,6 +36,9 @@ services:
       GIGACHAT_VERIFY_SSL: ${GIGACHAT_VERIFY_SSL:-true}
       GIGACHAT_CA_BUNDLE: ${GIGACHAT_CA_BUNDLE:-}
       PRODUCT_UPLOAD_DIR: /app/uploads/products
+      DEMO_LOGIN_ENABLED: ${DEMO_LOGIN_ENABLED:-true}
+      DEMO_SESSION_MINUTES: ${DEMO_SESSION_MINUTES:-60}
+      DEMO_MAX_SESSIONS: ${DEMO_MAX_SESSIONS:-100}
       SEED_DEMO_DATA: ${SEED_DEMO_DATA:-true}
     volumes:
       - product_uploads:/app/uploads

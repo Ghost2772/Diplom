@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import DemoLogin from "../components/DemoLogin";
 
 export default function HomePage() {
   return (
@@ -31,6 +32,7 @@ export default function HomePage() {
                 Открыть AI-чат
               </Link>
             </div>
+            <DemoLogin />
           </div>
 
           <div className="home-hero__features" aria-label="Возможности магазина">

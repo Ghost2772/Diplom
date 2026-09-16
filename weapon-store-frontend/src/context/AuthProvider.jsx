@@ -1,11 +1,45 @@
 import { useEffect, useState } from "react";
-import { getCurrentUser } from "../api/authApi";
+import { getCurrentUser, getDemoConfig } from "../api/authApi";
 import { AuthContext } from "./authContext";
 
 export default function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem("access_token"));
   const [user, setUser] = useState(null);
   const [userLoading, setUserLoading] = useState(Boolean(token));
+  const [demoConfig, setDemoConfig] = useState(null);
+  const [sessionNotice, setSessionNotice] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+    getDemoConfig()
+      .then((config) => {
+        if (isMounted) setDemoConfig(config);
+      })
+      .catch(() => {
+        // Normal sign-in remains available if demo mode cannot be loaded.
+      });
+    return () => { isMounted = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!user?.is_demo || !user.demo_expires_at) return undefined;
+
+    const expiresAt = new Date(user.demo_expires_at).getTime();
+    const expireSession = () => {
+      if (Date.now() < expiresAt) return;
+      localStorage.removeItem("access_token");
+      setToken(null);
+      setUser(null);
+      setUserLoading(false);
+      setSessionNotice("Демо-сессия завершилась. Вы можете открыть новую одним нажатием");
+    };
+    const timer = window.setTimeout(expireSession, Math.max(0, expiresAt - Date.now()));
+    document.addEventListener("visibilitychange", expireSession);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", expireSession);
+    };
+  }, [user]);
 
   useEffect(() => {
     if (!token) {
@@ -38,6 +72,7 @@ export default function AuthProvider({ children }) {
   const login = (newToken) => {
     localStorage.setItem("access_token", newToken);
     setUser(null);
+    setSessionNotice("");
     setUserLoading(true);
     setToken(newToken);
   };
@@ -45,6 +80,7 @@ export default function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem("access_token");
     setUser(null);
+    setSessionNotice("");
     setUserLoading(false);
     setToken(null);
   };
@@ -55,6 +91,8 @@ export default function AuthProvider({ children }) {
         token,
         user,
         userLoading,
+        demoConfig,
+        sessionNotice,
         login,
         logout,
         isAuthenticated: Boolean(token),
