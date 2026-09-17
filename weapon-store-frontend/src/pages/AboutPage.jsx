@@ -126,9 +126,7 @@ export default function AboutPage() {
 
         <section className="about-section" id="features" aria-labelledby="features-title">
           <div className="about-section__heading">
-            <p className="about-kicker">01 / Возможности</p>
-            <h2 id="features-title">Связанные сценарии в одном интерфейсе</h2>
-            <p>От просмотра карточки товара до заказа и управления каталогом</p>
+            <h2 className="about-kicker" id="features-title">01 / Возможности</h2>
           </div>
           <div className="about-features">
             {features.map((feature) => (
@@ -156,8 +154,7 @@ export default function AboutPage() {
 
         <section className="about-section" id="architecture" aria-labelledby="architecture-title">
           <div className="about-section__heading">
-            <p className="about-kicker">02 / Архитектура</p>
-            <h2 id="architecture-title">Как части приложения работают вместе</h2>
+            <h2 className="about-kicker" id="architecture-title">02 / Архитектура</h2>
           </div>
           <div className="glass-panel about-system">
             <figure className="about-diagram" aria-labelledby="architecture-caption">
@@ -210,8 +207,7 @@ export default function AboutPage() {
 
         <section className="about-section" id="decisions" aria-labelledby="decisions-title">
           <div className="about-section__heading">
-            <p className="about-kicker">03 / Детали реализации</p>
-            <h2 id="decisions-title">Решения, которые можно проверить в коде</h2>
+            <h2 className="about-kicker" id="decisions-title">03 / Технические решения</h2>
           </div>
           <div className="about-decisions">
             {decisions.map((decision, index) => (
@@ -231,8 +227,7 @@ export default function AboutPage() {
 
         <section className="about-section" id="quality" aria-labelledby="quality-title">
           <div className="about-section__heading">
-            <p className="about-kicker">04 / Проверки</p>
-            <h2 id="quality-title">Воспроизводимый запуск и проверяемое поведение</h2>
+            <h2 className="about-kicker" id="quality-title">04 / Проверки</h2>
           </div>
           <div className="about-quality">
             <article>
