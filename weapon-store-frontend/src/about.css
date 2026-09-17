@@ -173,6 +173,9 @@
 
 .about-section__heading .about-kicker {
   margin: 0;
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  letter-spacing: 0.06em;
+  line-height: 1.4;
 }
 
 .about-tour h2 {

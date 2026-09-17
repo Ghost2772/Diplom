@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
@@ -34,11 +34,11 @@ app.include_router(ai_router)
 
 
 @app.get("/")
-def root():
+def root(request: Request):
     return {
         "name": settings.APP_NAME,
         "version": app.version,
-        "docs": "/docs",
+        "docs": f"{request.scope.get('root_path', '')}/docs",
     }
 
 

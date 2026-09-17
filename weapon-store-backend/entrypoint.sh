@@ -24,4 +24,4 @@ if [ "${SEED_DEMO_DATA:-false}" = "true" ]; then
   python -m app.seed
 fi
 
-exec uvicorn app.main:app --host 0.0.0.0 --port 8000
+exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --root-path "${ROOT_PATH:-}"
