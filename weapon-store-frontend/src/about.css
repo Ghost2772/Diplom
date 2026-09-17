@@ -1,0 +1,529 @@
+.home-hero__about-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+  padding: 0.5rem 0;
+  color: #d8c49c;
+  font-size: 0.76rem;
+}
+
+.home-hero__about-link:hover,
+.home-hero__about-link:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.nav-links a[aria-current="page"] {
+  color: #d8bd8b;
+}
+
+.about-layout {
+  width: min(1180px, 92%);
+}
+
+.about-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4rem);
+}
+
+.about-intro__heading {
+  margin: 0;
+}
+
+.about-intro__name {
+  margin: 1.6rem 0 0.85rem;
+  color: #d8bd8b;
+  font-family: "Pirata One", Georgia, serif;
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+}
+
+.about-intro__name + p {
+  margin: 0;
+  max-width: 570px;
+  color: #bbb9b3;
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.about-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem 1.4rem;
+}
+
+.about-intro .about-actions {
+  margin-top: 1.8rem;
+}
+
+.about-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #dbc398;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.6;
+  text-underline-offset: 5px;
+}
+
+.about-text-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.about-page a:focus-visible,
+.about-page summary:focus-visible {
+  outline: 2px solid #d8bd8b;
+  outline-offset: 5px;
+  border-radius: 4px;
+}
+
+.about-passport {
+  padding: clamp(1.4rem, 3vw, 2rem);
+  border-radius: 28px;
+}
+
+.about-page .about-kicker {
+  margin: 0 0 0.85rem;
+  color: #c9ac74;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.about-passport h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.about-passport > p:not(.about-kicker) {
+  color: #b8b6ae;
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.about-passport dl {
+  margin: 1.5rem 0;
+}
+
+.about-passport dl > div {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.about-passport dt {
+  color: #a19f97;
+  font-size: 0.65rem;
+}
+
+.about-passport dd {
+  margin: 0;
+  color: #ece8df;
+  font-size: 0.82rem;
+}
+
+.about-passport .about-passport__note {
+  margin-bottom: 0;
+  font-size: 0.7rem;
+}
+
+.about-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.8rem;
+  margin-top: 3rem;
+  padding: 1.1rem 0;
+  border-block: 1px solid rgba(255, 255, 255, 0.12);
+  color: #c4c0b7;
+  font-size: 0.76rem;
+}
+
+.about-navigation a {
+  padding: 0.5rem 0;
+}
+
+.about-navigation a:hover {
+  color: #e5c58c;
+}
+
+.about-section {
+  margin-top: clamp(3.3rem, 7vw, 5rem);
+  scroll-margin-top: 2rem;
+}
+
+.about-section__heading {
+  max-width: 780px;
+  margin-bottom: 1.7rem;
+}
+
+.about-section__heading h2,
+.about-tour h2 {
+  margin: 0;
+  font-size: clamp(1.65rem, 3.4vw, 2.45rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.about-section__heading > p:last-child:not(.about-kicker) {
+  margin: 1rem 0 0;
+  color: #b8b5ac;
+  font-size: 0.86rem;
+  line-height: 1.8;
+}
+
+.about-features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.about-feature {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: clamp(1.3rem, 3vw, 2rem);
+  border-radius: 24px;
+}
+
+.about-feature__number {
+  margin-bottom: 1.1rem;
+  color: #bea676;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+}
+
+.about-feature h3,
+.about-system h3,
+.about-quality h3,
+.about-tour h3 {
+  margin: 0;
+  color: #f4f0e6;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.about-feature > p,
+.about-quality p,
+.about-tour__entry > p:not(.about-kicker) {
+  margin: 0.75rem 0 1.2rem;
+  color: #b9b6ac;
+  font-size: 0.82rem;
+  line-height: 1.8;
+}
+
+.about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: auto 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.about-tags li {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  color: #c6c0b4;
+  font-size: 0.65rem;
+}
+
+.about-section__note {
+  margin: 1rem 0 0;
+  color: #aaa69d;
+  font-size: 0.73rem;
+  line-height: 1.7;
+}
+
+.about-system {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 3.5rem);
+  padding: clamp(1.3rem, 4vw, 3rem);
+  border-radius: 28px;
+}
+
+.about-diagram {
+  align-self: center;
+  margin: 0;
+}
+
+.about-diagram__node {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1.05rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  background: rgba(7, 9, 10, 0.5);
+  text-align: center;
+}
+
+.about-diagram__node--client,
+.about-diagram__node--api {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.about-diagram__node--api {
+  border-color: rgba(211, 178, 116, 0.52);
+  background: rgba(181, 145, 78, 0.1);
+}
+
+.about-diagram__node > span,
+.about-diagram__node small {
+  color: #b1ac9f;
+  font-size: 0.65rem;
+  line-height: 1.5;
+}
+
+.about-diagram__node strong {
+  font-size: clamp(0.88rem, 2vw, 1.1rem);
+  font-weight: 600;
+}
+
+.about-diagram__connector {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0;
+  color: #baa375;
+  font-size: 0.65rem;
+}
+
+.about-diagram__connector b {
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.about-diagram__branches {
+  display: block;
+  width: 100%;
+  height: 36px;
+  overflow: visible;
+  fill: none;
+  stroke: #a08d65;
+  stroke-width: 1;
+}
+
+.about-diagram__outputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.about-diagram figcaption {
+  margin-top: 1.2rem;
+  color: #aaa69d;
+  font-size: 0.69rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.about-system__details dl {
+  display: grid;
+  gap: 1.15rem;
+  margin: 1.4rem 0;
+}
+
+.about-system__details dt {
+  color: #e2d5bd;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.about-system__details dd {
+  margin: 0.4rem 0 0;
+  color: #b7b4ac;
+  font-size: 0.77rem;
+  line-height: 1.75;
+}
+
+.about-decisions {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.about-decision {
+  border-radius: 20px;
+}
+
+.about-decision summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.35rem 1.5rem;
+  color: #ece7da;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.6;
+  list-style: none;
+  cursor: pointer;
+}
+
+.about-decision summary::-webkit-details-marker {
+  display: none;
+}
+
+.about-decision summary > span {
+  color: #c9ac74;
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+
+.about-decision[open] summary > span {
+  transform: rotate(45deg);
+}
+
+.about-decision__body {
+  padding: 0 1.5rem 1.35rem;
+}
+
+.about-decision__body > p {
+  max-width: 930px;
+  margin: 0 0 1.1rem;
+  color: #bcb7ab;
+  font-size: 0.82rem;
+  line-height: 1.85;
+}
+
+.about-quality {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.about-quality article {
+  padding: 1.4rem 0;
+  border-top: 1px solid rgba(204, 178, 127, 0.35);
+}
+
+.about-tour {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4rem);
+  margin-top: clamp(3rem, 6vw, 5rem);
+  padding: clamp(1.4rem, 4vw, 3rem);
+  border-radius: 28px;
+  scroll-margin-top: 2rem;
+}
+
+.about-tour__steps {
+  display: grid;
+  gap: 1rem;
+  margin: 1.8rem 0 0;
+  padding-left: 1.6rem;
+}
+
+.about-tour__steps li {
+  padding-left: 0.45rem;
+  color: #bea77a;
+  font-size: 0.76rem;
+  line-height: 1.7;
+}
+
+.about-tour__steps a {
+  color: #ece3d0;
+  font-size: 0.87rem;
+  font-weight: 600;
+}
+
+.about-tour__steps a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.about-tour__steps span {
+  display: block;
+  margin-top: 0.2rem;
+  color: #b9b4a7;
+}
+
+.about-tour__entry .about-tour__note {
+  margin: 1rem 0 0;
+  color: #aaa497;
+  font-size: 0.7rem;
+  line-height: 1.7;
+}
+
+.about-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a7a398;
+  font-size: 0.68rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .about-intro,
+  .about-system,
+  .about-tour {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .about-passport dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 1rem;
+  }
+
+  .about-diagram {
+    width: 100%;
+    max-width: 460px;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .about-features,
+  .about-quality {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .about-navigation {
+    gap: 0.3rem 1.2rem;
+  }
+
+  .about-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .about-decision summary {
+    padding: 1.15rem;
+    font-size: 0.82rem;
+  }
+
+  .about-decision__body {
+    padding: 0 1.15rem 1.15rem;
+  }
+
+  .about-quality {
+    gap: 0.3rem;
+  }
+
+  .about-page .workspace-primary-button {
+    padding-inline: 1rem;
+    font-size: 0.75rem;
+  }
+}

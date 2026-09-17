@@ -33,6 +33,9 @@ export default function HomePage() {
               </Link>
             </div>
             <DemoLogin />
+            <Link to="/about" className="home-hero__about-link">
+              О проекте и технологиях <span aria-hidden="true">↗</span>
+            </Link>
           </div>
 
           <div className="home-hero__features" aria-label="Возможности магазина">

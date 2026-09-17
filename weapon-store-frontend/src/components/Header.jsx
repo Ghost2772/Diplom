@@ -15,6 +15,7 @@ export default function Header() {
 
         <nav className="nav-links">
           <Link to="/catalog">Каталог</Link>
+          <Link to="/about" aria-current={pathname === "/about" ? "page" : undefined}>О проекте</Link>
           {isAuthenticated && (
             <Link to="/profile">Профиль{user?.is_demo && <span className="demo-nav-badge">Демо</span>}</Link>
           )}

@@ -3572,6 +3572,8 @@ button {
   .nav-links {
     justify-content: flex-start;
     width: 100%;
+    column-gap: 10px;
+    font-size: 0.82rem;
   }
 
   .auth-layout {
